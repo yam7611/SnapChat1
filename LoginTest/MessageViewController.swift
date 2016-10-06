@@ -6,6 +6,8 @@
 //  Copyright © 2016 yam7611. All rights reserved.
 //
 
+//fixed message chat cell issue 
+
 import UIKit
 import Firebase
 
@@ -60,12 +62,8 @@ class MessageViewController: UIViewController,UITableViewDelegate,UITableViewDat
         self.view.backgroundColor = UIColor.whiteColor()
         messageTableVIew.dataSource = self
         messageTableVIew.separatorStyle = UITableViewCellSeparatorStyle.SingleLine
-        
-        
-        
-        
         messageTableVIew.frame = CGRectMake(0,0,self.view.frame.width,self.view.frame.height - 60)
-        messageTableVIew.separatorStyle = .SingleLine
+        messageTableVIew.separatorStyle = .None
         self.view.addSubview(messageTableVIew)
         
         
@@ -480,18 +478,38 @@ class MessageViewController: UIViewController,UITableViewDelegate,UITableViewDat
     
    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
     
-    let cell = self.messageTableVIew.dequeueReusableCellWithIdentifier(cellId,forIndexPath: indexPath) as? MessageCell
-        cell?.messagePhoto.image = nil
+    var cell = self.messageTableVIew.dequeueReusableCellWithIdentifier(cellId,forIndexPath: indexPath) as? MessageCell
+    
+    
+    //var imgv:UIImageView?
+    
+    if cell == nil{
+       cell = MessageCell(style: UITableViewCellStyle.Default, reuseIdentifier: cellId)
+        
+        
+    } else {
+//         print("inner loop")
+//        while(cell?.subviews.last != nil){
+//            cell?.subviews.last?.removeFromSuperview()
+//            print("logloglog")
+//        }
+    }
+    
+        //cell?.messagePhoto.image = nil
+        //cell?.messagePhoto.frame = CGRectMake(0,0,0,0)
         cell?.myAccount = self.myAccount
-        cell?.message = messages[indexPath.row]
-        //print("index:\(cell?.currentIndex)msg:\(cell?.message?.text),or image:\(cell?.message?.imageURL)")
+    
+    
+        let index = indexPath.row
+        cell?.message = messages[index]
+        cell?.currentIndex = index
         cell?.textLabel?.font = UIFont(name: "Helvetica", size: 12)
     
-        //tableView.rowHeight = 50
+        tableView.rowHeight = cell!.frame.height
         if ((cell?.message?.imageURL) != nil){
-            cell?.messagePhoto.addGestureRecognizer(UITapGestureRecognizer(target:self,action:#selector(loadFullScreenPhoto)))
+          cell?.messagePhoto.addGestureRecognizer(UITapGestureRecognizer(target:self,action:#selector(loadFullScreenPhoto)))
         }
-        
+    
         return cell!
     }
     

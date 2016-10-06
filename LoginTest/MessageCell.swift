@@ -26,21 +26,16 @@ class MessageCell: UITableViewCell {
     var myAccount = ""
     let messagePhoto :UIImageView = {
         let tempImageView = UIImageView()
+        tempImageView.layer.cornerRadius = 10
+        tempImageView.layer.masksToBounds = true
         tempImageView.contentMode = .ScaleAspectFill
         return tempImageView
         
     }()
     
-    let cellNumber :UILabel = {
-        let tempLabel = UILabel()
-        tempLabel.frame.size = CGSizeMake(40,30)
-        return tempLabel
-    }()
     
     let spiner :UIActivityIndicatorView = {
-        
         let tempSpiner = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.White )
-        
         return tempSpiner
     }()
     var timer : NSTimer?
@@ -48,10 +43,6 @@ class MessageCell: UITableViewCell {
     
     var message: Message?{
         didSet{
-            
-//            if let talbeView = self.superview as? UITableView{
-//                self.cellNumber = talbeView
-//            }
             
             if message?.fromId == myAccount{
                 self.subtitleLabel.text = "Me:"
@@ -64,30 +55,26 @@ class MessageCell: UITableViewCell {
                     self.subtitleLabel.text = dictionary["name"] as? String
                     }, withCancelBlock: nil)
                 self.subtitleLabel.textColor = UIColor.blueColor()
-                 //print("myAcc:\(myAccount),other:\()")
                 
             }
-            //self.messagePhoto.frame.size.height = 0
-            self.frame.size.height = 60
             
+            self.frame.size.height = 60
             self.setUpComponent()
             
         }
     }
     
-    
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: .Subtitle,reuseIdentifier:reuseIdentifier)
         //currentIndex = 0
         
+        //make sure subview doesn't displays over cell
+        self.clipsToBounds = true
         self.addSubview(subtitleLabel)
         self.addSubview(detailLabel)
         self.addSubview(timestampLabel)
-        self.addSubview(messagePhoto)
-        self.addSubview(cellNumber)
+
         timer = NSTimer.scheduledTimerWithTimeInterval(0.3, target: self, selector: #selector(checkLoadingPhoto), userInfo: nil, repeats: true)
-        
-        
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -102,14 +89,24 @@ class MessageCell: UITableViewCell {
         }
     }
     
-    
     func setUpComponent(){
         
+        setCellFrameSizeAccordingToMessageType()
+        
+        // loading message timestamp to timeLabel
+        if let seconds = message?.timestamp?.doubleValue {
+            let timestamp = NSDate(timeIntervalSince1970: seconds)
+            let dateFormatter = NSDateFormatter()
+            dateFormatter.dateFormat = "YYYY/MM/dd/hh:mm a"
+            self.timestampLabel.text = dateFormatter.stringFromDate(timestamp)
+        }
+    }
+    
+    func setCellFrameSizeAccordingToMessageType(){
         if let imageURLmessage = message?.imageURL{
-              //self.detailLabel.text = message?.imageURL
-            
+            // set frame height for displaying image
+            self.addSubview(messagePhoto)
             if let imageWidth = message?.imageWidth{
-               
                 if imageWidth.doubleValue > 150{
                     let newHeight = 150 * (message?.imageHeight)!.doubleValue / imageWidth.doubleValue
                     self.messagePhoto.frame = CGRectMake(0,0,150,CGFloat(newHeight))
@@ -135,33 +132,21 @@ class MessageCell: UITableViewCell {
                 }
                 self.messagePhoto.userInteractionEnabled = true
             }
-            // self.messagePhoto.frame.size.width = 80
-            //self.messagePhoto.frame.size.height = 80
             
             self.messagePhoto.loadImageUsingCacheWithUrlString(imageURLmessage)
-            
-            
-            
             self.messagePhoto.frame.origin.x = 5
             self.messagePhoto.frame.origin.y = self.subtitleLabel.frame.height + 10
-            
-            
-            self.frame.size.height  = 40
+            self.frame.size.height += messagePhoto.frame.height - 10
             
         } else {
+            // set frame height for displaying text
             
+            //self.messagePhoto.image = nil
+            self.messagePhoto.frame  = CGRectMake(0,0,0,0)
             self.frame.size.height = 60
             self.detailLabel.text = message?.text
         }
-        
-        
-        if let seconds = message?.timestamp?.doubleValue {
-            let timestamp = NSDate(timeIntervalSince1970: seconds)
-            let dateFormatter = NSDateFormatter()
-            dateFormatter.dateFormat = "YYYY/MM/dd/hh:mm a"
-            self.timestampLabel.text = dateFormatter.stringFromDate(timestamp)
-        }
-  
+
     }
  
     override func layoutSubviews() {
@@ -169,7 +154,6 @@ class MessageCell: UITableViewCell {
         subtitleLabel.frame = CGRectMake(5,5,200,20)
         detailLabel.frame = CGRectMake(5,30,350,20)
         timestampLabel.frame = CGRectMake(self.frame.width - 150, 5,175,40)
-        cellNumber.frame.origin  = CGPointMake(self.frame.width - 15, 20)
     }
     
 }
