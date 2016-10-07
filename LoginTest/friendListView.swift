@@ -13,6 +13,8 @@ class friendListView: UITableViewController {
     
     let cellIdentifier = "CellId"
     var users = [User]()
+    let currentUid = FIRAuth.auth()?.currentUser?.uid
+    
     
     override func viewDidLoad() {
         
@@ -27,8 +29,7 @@ class friendListView: UITableViewController {
         self.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "logout", style: .Plain, target: self, action: #selector(handleLogout))
    
         fetchUser()
-        
-        //print(users.count)
+     
     }
     
     func handleLogout(){
@@ -48,9 +49,8 @@ class friendListView: UITableViewController {
             print ("user is not logging ")
         } else {
             
-            let uid = FIRAuth.auth()?.currentUser?.uid
-          
-            FIRDatabase.database().reference().child("users").child(uid!).observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+            
+            FIRDatabase.database().reference().child("users").child(currentUid!).observeSingleEventOfType(.Value, withBlock: { (snapshot) in
                 //print(snapshot)
                 
                 if let dict = snapshot.value as? [String:AnyObject]{
@@ -61,41 +61,23 @@ class friendListView: UITableViewController {
                    }
     }
     
-    
-    
-    
     func fetchUser(){
         FIRDatabase.database().reference().child("users").observeEventType(.ChildAdded, withBlock: { (snapshot) in
-            
-            //print(snapshot)
-            
+      
             if let dictionary = snapshot.value as? [String:AnyObject] {
-                
-                
-                let user = User()
-                user.setValuesForKeysWithDictionary(dictionary)
-                user.uid = snapshot.key
-//                user.name = String(dictionary["name"])
-//                user.email = String(dictionary["username"])
-                self.users.append(user)
-                //print(self.users.count)
-                 //print(user.name,user.username)
-                
-                dispatch_async(dispatch_get_main_queue(), {
-                    self.tableView.reloadData()
-                })
-                
+                let user = User(dictionary:dictionary,uid:snapshot.key)
+                if user.uid != self.currentUid{
+                    self.users.append(user)
+                    dispatch_async(dispatch_get_main_queue(), {
+                        self.tableView.reloadData()
+                    })
+                }
             }
-           
-            }, withCancelBlock: nil)
-        self.tableView.reloadData()
+        }, withCancelBlock: nil)
+        //self.tableView.reloadData()
     }
     
-//    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-//        
-//        return users.count
-//    }
-    
+
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return users.count
     }
@@ -120,10 +102,7 @@ class friendListView: UITableViewController {
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         let messageVC = MessageViewController()
         
-        var user = User()
-        user = users[indexPath.row]
-        
-        
+        var user = users[indexPath.row]
         messageVC.user = user
         
         let navigationVC = UINavigationController(rootViewController: messageVC)

@@ -6,7 +6,7 @@
 //  Copyright © 2016 yam7611. All rights reserved.
 //
 
-//fixed message chat cell issue ahahah
+//fixed message chat cell issue 
 
 import UIKit
 import Firebase
@@ -216,9 +216,7 @@ class MessageViewController: UIViewController,UITableViewDelegate,UITableViewDat
         
     }
     
-    
-    
-    
+
     func updateTimer(){
         if self.leftTime >= 0 {
             self.leftTime = self.leftTime - 1
@@ -401,7 +399,7 @@ class MessageViewController: UIViewController,UITableViewDelegate,UITableViewDat
                         self.messageTableVIew.reloadData()
                         
                         })
-  
+                    
                 }, withCancelBlock: nil)
             
             
@@ -519,7 +517,7 @@ class MessageViewController: UIViewController,UITableViewDelegate,UITableViewDat
     
     
     func tableView(tableView: UITableView, didEndDisplayingCell cell: UITableViewCell, forRowAtIndexPath indexPath: NSIndexPath) {
-        
+        print("finish display:\(indexPath.row)")
         if self.messages.count>0{
             if indexPath.row == self.messages.count - 1 {
                 let indexPath = NSIndexPath(forItem: self.messages.count - 1,inSection:0)
@@ -527,9 +525,6 @@ class MessageViewController: UIViewController,UITableViewDelegate,UITableViewDat
             }
         }
     }
-    
-    
-    
  
 }
 

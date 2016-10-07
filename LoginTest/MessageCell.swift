@@ -16,7 +16,12 @@ class MessageCell: UITableViewCell {
 
     var currentIndex:Int?
     let subtitleLabel = UILabel()
-    let detailLabel = UILabel()
+    let detailLabel : UILabel = {
+        let tempLabel = UILabel()
+        
+        return tempLabel
+    
+    }()
     let timestampLabel: UILabel={
         let tempLabel = UILabel()
         tempLabel.textColor = UIColor.lightGrayColor()
@@ -57,7 +62,6 @@ class MessageCell: UITableViewCell {
                 self.subtitleLabel.textColor = UIColor.blueColor()
                 
             }
-            
             self.frame.size.height = 60
             self.setUpComponent()
             
@@ -71,9 +75,9 @@ class MessageCell: UITableViewCell {
         //make sure subview doesn't displays over cell
         self.clipsToBounds = true
         self.addSubview(subtitleLabel)
-        self.addSubview(detailLabel)
+        
         self.addSubview(timestampLabel)
-
+        
         timer = NSTimer.scheduledTimerWithTimeInterval(0.3, target: self, selector: #selector(checkLoadingPhoto), userInfo: nil, repeats: true)
     }
     
@@ -116,6 +120,9 @@ class MessageCell: UITableViewCell {
                     
                     self.messagePhoto.frame = CGRectMake(0,0,CGFloat(imageWidth),CGFloat((message?.imageHeight)!))
                 }
+                self.messagePhoto.frame.origin.x = 5
+                self.messagePhoto.frame.origin.y = self.subtitleLabel.frame.height + 10
+                self.frame.size.height += messagePhoto.frame.height - 10
                 
                 if messagePhoto.image == nil {
                     dispatch_async(dispatch_get_main_queue(), {
@@ -134,14 +141,15 @@ class MessageCell: UITableViewCell {
             }
             
             self.messagePhoto.loadImageUsingCacheWithUrlString(imageURLmessage)
-            self.messagePhoto.frame.origin.x = 5
-            self.messagePhoto.frame.origin.y = self.subtitleLabel.frame.height + 10
-            self.frame.size.height += messagePhoto.frame.height - 10
+            
+            self.detailLabel.frame = CGRectMake(0,0,0,0)
             
         } else {
             // set frame height for displaying text
             
             //self.messagePhoto.image = nil
+            self.addSubview(detailLabel)
+            detailLabel.frame = CGRectMake(5,30,350,20)
             self.messagePhoto.frame  = CGRectMake(0,0,0,0)
             self.frame.size.height = 60
             self.detailLabel.text = message?.text
@@ -152,7 +160,7 @@ class MessageCell: UITableViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         subtitleLabel.frame = CGRectMake(5,5,200,20)
-        detailLabel.frame = CGRectMake(5,30,350,20)
+        
         timestampLabel.frame = CGRectMake(self.frame.width - 150, 5,175,40)
     }
     

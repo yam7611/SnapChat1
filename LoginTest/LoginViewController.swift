@@ -16,6 +16,7 @@ class LoginViewController: UIViewController {
     let urlAtHome = "192.168.1.2"
     let urlAtUni = "10.13.88.88"
     
+    @IBOutlet weak var spiner: UIActivityIndicatorView!
     @IBOutlet weak var userName: UITextField!
 
     @IBOutlet weak var userPassword: UITextField!
@@ -44,7 +45,9 @@ class LoginViewController: UIViewController {
 //        if validP {
 //            performSegueWithIdentifier(Storyboard.segueIdentifier, sender: sender)
 //        }
-        
+        dispatch_async(dispatch_get_main_queue()) {
+            self.spiner.startAnimating()
+        }
         guard let email = userName.text,password = userPassword.text else {
             
             print("password is not valied")
@@ -56,9 +59,13 @@ class LoginViewController: UIViewController {
         FIRAuth.auth()?.signInWithEmail(email, password: password, completion: { (FIRUser, err) in
             
             if err != nil{
+                self.wrongPassLabel.text = "wrong password!"
                 print("the password is not correct")
+                self.spiner.stopAnimating()
                 return
             } else {
+                self.spiner.stopAnimating()
+                self.spiner.hidden = false
                 let friendList = friendListView()
                 let naviationVC = UINavigationController(rootViewController: friendList)
                 self.presentViewController(naviationVC, animated: true, completion: nil)

@@ -4,7 +4,8 @@
 //
 //  Created by yam7611 on 8/5/16.
 //  Copyright © 2016 yam7611. All rights reserved.
-//
+// 
+//  sendPhoto ViewController
 
 import UIKit
 import MobileCoreServices
@@ -21,10 +22,10 @@ class CameraViewController: UIViewController,UIImagePickerControllerDelegate,UIN
     var isCancelPhoto = false
     let closeImgV:UIImageView = UIImageView()
     let handWriteImgV:UIImageView = UIImageView()
-    let textImgV:UIImageView = UIImageView()
-    let stickerImgV:UIImageView = UIImageView()
-    let saveMemoryV:UIImageView = UIImageView()
-    let uploadStoryV:UIImageView = UIImageView()
+    let textBtn:UIButton = UIButton()
+    let stickerBtn:UIButton = UIButton()
+    let saveMemoryBtn:UIButton = UIButton()
+    let uploadStoryBtn:UIButton = UIButton()
     var backgroundOfText:UIView = UIView()
     var keyboardFrame = CGRectZero
     var lastPoint = CGPoint()
@@ -37,6 +38,14 @@ class CameraViewController: UIViewController,UIImagePickerControllerDelegate,UIN
     var sourceBUtton = UIButton()
     let darkBlur = UIBlurEffect(style: UIBlurEffectStyle.Dark)
     let emojiBackground = UIVisualEffectView()
+    var normalView = UIView()
+    var sendPhotoBtn : UIButton = {
+        let tempBtn  = UIButton()
+        tempBtn.setImage(UIImage(named:"play-button"), forState: .Normal
+        )
+        tempBtn.frame.size = CGSizeMake(45,45)
+        return tempBtn
+    }()
     
     let mode = ["StickerMode","TypeMode","HandWriteMode"]
     var currentMode = ""
@@ -47,10 +56,25 @@ class CameraViewController: UIViewController,UIImagePickerControllerDelegate,UIN
     let emojiGroup = [ 0x1F601...0x1F64F,0x1F680...0x1F6C0]
     var cameraView1: UIImageView?
     
+    var emojiDict = [String:Int]()
+    var emojiMinus = [Int]()
+    
+    var emojis = [UILabel]()
+    var drawV:DrawView?
+    
+    
+    var currentPhoto = 0
+    
+    var sendPhotoViewController:SendPhotoListController?
     
     @IBOutlet weak var cameraView: UIImageView!
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        self.view.addSubview(self.normalView)
+        self.normalView.frame = self.view.frame
+        self.normalView.backgroundColor = UIColor.clearColor()
+        
         initialiseCamera()
         fetchImageFromDevice()
         self.textForEditing.delegate = self
@@ -67,6 +91,17 @@ class CameraViewController: UIViewController,UIImagePickerControllerDelegate,UIN
         
         initiateComponent()
          print ("didCameraLoad:\(self.CameraLoaded.description)")
+        
+        
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(backToMainViewOfEditMode), name: "leaveWritingMode", object: nil)
+    }
+    
+    
+    func backToMainViewOfEditMode(){
+        print("leave writing mode")
+        bringMainViewToFront(self.normalView)
+        self.view.bringSubviewToFront(backgroundOfText)
+        // self.view.becomeFirstResponder()
     }
     
     
@@ -85,6 +120,16 @@ class CameraViewController: UIViewController,UIImagePickerControllerDelegate,UIN
         textForEditing.removeFromSuperview()
         backgroundOfText.addSubview(tempoLabelForTypeText)
         
+    }
+    
+    func bringMainViewToFront(mainView:UIView){
+        self.view.bringSubviewToFront(mainView)
+        self.view.bringSubviewToFront(self.stickerBtn)
+        self.view.bringSubviewToFront(self.handWriteImgV)
+        self.view.bringSubviewToFront(self.textBtn)
+        self.view.bringSubviewToFront(self.closeImgV)
+        self.view.bringSubviewToFront(self.saveMemoryBtn)
+        self.view.bringSubviewToFront(self.uploadStoryBtn)
     }
     
     func textFieldShouldReturn(textField: UITextField) -> Bool {
@@ -122,13 +167,6 @@ class CameraViewController: UIViewController,UIImagePickerControllerDelegate,UIN
     
     override func viewWillDisappear(animated: Bool) {
         showAllButton()
-        
-//        if self.CameraLoaded {
-//            self.dismissViewControllerAnimated(true){
-//                self.CameraLoaded = false
-//            }
-//            
-//        }
         
     }
     
@@ -226,6 +264,7 @@ class CameraViewController: UIViewController,UIImagePickerControllerDelegate,UIN
                 //if currently user us in sticker mode then execute this
                 if self.currentMode == mode[0]{
                     self.emojiBackground.hidden = true
+                    //self.backgroundOfText.hidden = false
                 } else {
                     cancelCurrentPhoto()
                     isCancelPhoto = true
@@ -237,22 +276,11 @@ class CameraViewController: UIViewController,UIImagePickerControllerDelegate,UIN
                 hideAllButton()
                 goHandWriteMode()
                 self.isButtonVisible = true
-            } else if CGRectContainsPoint(self.textImgV.frame,point){
-                self.currentMode = mode[1]
-                hideAllButton()
-                goToTextMode()
-                self.isButtonVisible = true
+            
             } else if CGRectContainsPoint(self.backgroundOfText.frame, point){
                 self.movingTextBar = true
                 self.willEditText = true
-            } else if CGRectContainsPoint(self.stickerImgV.frame, point){
-                self.currentMode = mode[0]
-                goToStickerMode()
-                
-
-               
             }
-            
             else {
                 self.isButtonVisible = false
                 hideAllButton()
@@ -342,7 +370,7 @@ class CameraViewController: UIViewController,UIImagePickerControllerDelegate,UIN
                 emojiString += String(UnicodeScalar(j))
             }
         }
-        print (emojiString)
+        //print (emojiString)
         
         self.emojiScreen.backgroundColor = UIColor.clearColor()
         self.emojiScreen.text = "face \n \(emojiString) "
@@ -360,6 +388,15 @@ class CameraViewController: UIViewController,UIImagePickerControllerDelegate,UIN
         
         self.emojiBackground.addSubview(self.emojiScreen)
         
+        var i = 0
+        for j in 7...293 {
+            if j%2 != 0 {
+                self.emojiDict["\(j)"] = j - i
+                //append(j-emojiMinus[i])
+                i = i+1
+                //print("i=\(i),j=\(j)")
+            }
+        }
         
         //
     }
@@ -370,45 +407,33 @@ class CameraViewController: UIViewController,UIImagePickerControllerDelegate,UIN
                 var location = recognizer.locationInView(textView)
                 location.x -= textView.textContainerInset.left
                 location.y -= textView.textContainerInset.top
-                var charIndex = layoutManager.characterIndexForPoint(location, inTextContainer: textView.textContainer, fractionOfDistanceBetweenInsertionPoints: nil)
+                let charIndex = layoutManager.characterIndexForPoint(location, inTextContainer: textView.textContainer, fractionOfDistanceBetweenInsertionPoints: nil)
                 
-                print(charIndex)
-                
-                
-                
-                if charIndex < textView.textStorage.length{
-                    print("it is smaller")
-                    var range =  NSRange(location:0, length:1)
- 
-                    //let y:Int32 = charIndex
+               // print(charIndex)
+                if let indexRange = emojiDict["\(charIndex)"]{
+                    let subRange = self.emojiScreen.text.startIndex.advancedBy(indexRange)..<self.emojiScreen.text.startIndex.advancedBy(indexRange + 1)
+                    let subString = self.emojiScreen.text.substringWithRange(subRange)
                     
-                    if let idval = textView.attributedText?.attribute("idnum", atIndex: charIndex, effectiveRange: &range) as? NSString {
-                        print ("id value :\(idval)")
-                        print ("cahrIndex :\(charIndex)")
-                        print("range.location:\(range.location)")
-                        print("range.length:\(range.length)")
-                        let tappedPhrase = (textView.attributedText.string as? NSString)?.substringWithRange(range)
-                        
-                        print("tappedPhrase:\(tappedPhrase)")
-                        
-                        var mutableText = textView.attributedText.mutableCopy() as? NSMutableAttributedString
-                        
-                        mutableText?.addAttributes([NSForegroundColorAttributeName:UIColor.redColor()], range: range)
-                        textView.attributedText = mutableText
-            
-                    }
-                    if let desc = textView.attributedText?.attribute("desc", atIndex: charIndex, effectiveRange: &range) as? NSString{
-                        print ("desc:\(desc)")
-                    }
+                    let attachedEmoji =  UILabel()
+                    attachedEmoji.text = subString
+                    attachedEmoji.frame = CGRectMake(50,50,40,40)
+                    attachedEmoji.font = UIFont.systemFontOfSize(40)
+                    attachedEmoji.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(checkIfEmojiMoved)))
+                    self.emojis.append(attachedEmoji)
                     
+                    self.emojiBackground.hidden = true
+                    self.normalView.addSubview(attachedEmoji)
                 }
-                else {print ("the one you choose is \(charIndex)")}
-                
-                
-            }
+         
+           }
         }
     }
     
+    
+    func checkIfEmojiMoved(tapGesture:UITapGestureRecognizer){
+        
+    }
+
     func createButtonsOnTopOfImageView(){
         
         let SCREEN_HEIGHT = self.view.frame.height
@@ -429,30 +454,37 @@ class CameraViewController: UIViewController,UIImagePickerControllerDelegate,UIN
         
         //MARK: setting each button image
         let handWriteImg:UIImage = UIImage(named: "pencil.png")!
-        let paperImg:UIImage = UIImage(named: "new-document-button.png")!
-        let textImg:UIImage = UIImage(named: "text.png")!
         let closeImg:UIImage = UIImage(named:"cancel.png")!
-        let saveToMemory:UIImage = UIImage(named:"download.png")!
-        let uploadToStory:UIImage = UIImage(named:"new-document.png")!
-        
         
         //MARK: attach them on imageView
         handWriteImgV.image = handWriteImg
-        textImgV.image = textImg
-        stickerImgV.image = paperImg
+        
+        textBtn.setImage(UIImage(named:"text.png"), forState: .Normal)
+        stickerBtn.setImage(UIImage(named:"new-document-button.png"), forState: .Normal)
         closeImgV.image = closeImg
-        saveMemoryV.image = saveToMemory
-        uploadStoryV.image = uploadToStory
+        saveMemoryBtn.setImage(UIImage(named:"download.png"), forState: .Normal)
+        uploadStoryBtn.setImage(UIImage(named:"new-document.png"), forState: .Normal)
+        
+        //set button function:
+        textBtn.addTarget(self, action: #selector(goToTextMode), forControlEvents: .TouchUpInside)
+        
+        stickerBtn.addTarget(self, action: #selector(goToStickerMode), forControlEvents: .TouchUpInside)
+        uploadStoryBtn.addTarget(self, action: #selector(handleUploadStory), forControlEvents: .TouchUpInside)
+        
+        saveMemoryBtn.addTarget(self, action: #selector(handleSaveMemory), forControlEvents: .TouchUpInside)
+        
+        self.sendPhotoBtn.addTarget(self, action: #selector(handleSnedPhoto), forControlEvents: .TouchUpInside)
         
         
         //MARK: set the position of each button(imageView) on self.view
-        stickerImgV.frame = CGRectMake(200,5,30,30)
+        stickerBtn.frame = CGRectMake(200,5,30,30)
         closeImgV.frame = CGRectMake(5,5,30,30)
-        textImgV.frame = CGRectMake(stickerImgV.frame.origin.x+40, stickerImgV.frame.origin.y, 30, 30)
-        handWriteImgV.frame = CGRectMake(textImgV.frame.origin.x+40,textImgV.frame.origin.y,30,30)
+        textBtn.frame = CGRectMake(stickerBtn.frame.origin.x+40, stickerBtn.frame.origin.y, 30, 30)
+        handWriteImgV.frame = CGRectMake(textBtn.frame.origin.x+40,textBtn.frame.origin.y,30,30)
         
-        saveMemoryV.frame = CGRectMake(40,SCREEN_HEIGHT - 40,30,30)
-        uploadStoryV.frame = CGRectMake(saveMemoryV.frame.origin.x + 40,SCREEN_HEIGHT-40,30,30)
+        saveMemoryBtn.frame = CGRectMake(40,SCREEN_HEIGHT - 40,30,30)
+        uploadStoryBtn.frame = CGRectMake(saveMemoryBtn.frame.origin.x + 40,SCREEN_HEIGHT-40,30,30)
+        sendPhotoBtn.frame.origin = CGPointMake(self.view.frame.width - 50, self.view.frame.height - 50)
         
         //MARK: attach all buttons view on self.view
         self.tabBarController?.tabBar.hidden = true
@@ -460,14 +492,74 @@ class CameraViewController: UIViewController,UIImagePickerControllerDelegate,UIN
         showAllButton()
     }
     
+    func handleUploadStory(){
+        print("handleUploadStory")
+    }
+    
+    func handleSaveMemory(){
+        print("handleSaveMemory")
+    }
+    
+    func handleSnedPhoto(){
+        print("handleSnedPhoto")
+        hideAllButton()
+        let layer = UIApplication.sharedApplication().keyWindow!.layer
+        let scale = UIScreen.mainScreen().scale
+        
+        UIGraphicsBeginImageContextWithOptions(layer.frame.size, false, scale)
+        layer.renderInContext(UIGraphicsGetCurrentContext()!)
+        let screenshot = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        currentPhoto = currentPhoto + 1
+        let data = UIImagePNGRepresentation(screenshot)
+        let filename = fetchDocumentPath().URLByAppendingPathComponent("\(currentPhoto).jpeg")
+       
+        //try? data?.writeToURL(filename, options: .DataWritingFileProtectionComplete)
+        
+        print("temporary not save to folder,but will be uncommented it later when translate photo")
+        
+        
+        //UIImageWriteToSavedPhotosAlbum(screenshot, nil, nil, nil)
+        
+        //self.sendPhotoViewController
+        self.sendPhotoViewController = SendPhotoListController()
+        let naviVC = UINavigationController(rootViewController: self.sendPhotoViewController!)
+        self.presentViewController(naviVC, animated: true, completion: nil)
+        
+        //loading photos from directory
+        if let url = NSData(contentsOfURL: filename){
+            //print(filename)
+            let image = UIImage(data: url )
+            let test = UIImageView(image:image)
+            test.frame = self.view.frame
+            self.view.addSubview(test)
+            test.backgroundColor = UIColor.grayColor()
+        }
+        
+        
+        
+    }
+    
+    func fetchDocumentPath() -> NSURL{
+        let paths = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)
+        let documentPath = paths[0]
+        return documentPath
+    }
+    
+    
     func goHandWriteMode(){
-        let drawV:DrawView = DrawView(frame:self.cameraView1!.frame)
+        drawV = DrawView(frame:self.cameraView1!.frame)
         //drawV.frame = CGRectMake(0,0,400,960)
-        drawV.backgroundColor = UIColor.clearColor()
-        self.view.addSubview(drawV)
+        drawV?.backgroundColor = UIColor.clearColor()
+        self.view.addSubview(self.drawV!)
     }
     
     func goToTextMode(){
+        
+        self.currentMode = mode[1]
+        hideAllButton()
+        self.isButtonVisible = true
+        
         backgroundOfText.backgroundColor = UIColor.blackColor().colorWithAlphaComponent(0.5)
         self.cameraView1?.addSubview(backgroundOfText)
         textForEditing.frame = CGRectMake(0,0,backgroundOfText.frame.width,backgroundOfText.frame.height)
@@ -481,14 +573,17 @@ class CameraViewController: UIViewController,UIImagePickerControllerDelegate,UIN
         
         //self.maskForText.backgroundColor = UIColor.greenColor().colorWithAlphaComponent(0.7)
         //backgroundOfText.addSubview(self.maskForText)
-        self.view.addSubview(backgroundOfText)
+        self.normalView.addSubview(backgroundOfText)
         
         
     }
     
     func goToStickerMode(){
+        self.currentMode = mode[0]
+        //self.backgroundOfText.hidden = true
         self.emojiBackground.hidden = false
         self.emojiScreen.hidden = false
+        self.bringMainViewToFront(self.emojiBackground)
     }
     
     
@@ -501,12 +596,13 @@ class CameraViewController: UIViewController,UIImagePickerControllerDelegate,UIN
     
     func showAllButton(){
         self.shotBtn.removeFromSuperview()
-        self.view.addSubview(self.stickerImgV)
+        self.view.addSubview(self.stickerBtn)
         self.view.addSubview(self.handWriteImgV)
-        self.view.addSubview(self.textImgV)
+        self.view.addSubview(self.textBtn)
         self.view.addSubview(self.closeImgV)
-        self.view.addSubview(self.saveMemoryV)
-        self.view.addSubview(self.uploadStoryV)
+        self.view.addSubview(self.saveMemoryBtn)
+        self.view.addSubview(self.uploadStoryBtn)
+        self.view.addSubview(self.sendPhotoBtn)
     }
     
     func cancelCurrentPhoto(){
@@ -521,14 +617,14 @@ class CameraViewController: UIViewController,UIImagePickerControllerDelegate,UIN
     func hideAllButton(){
         
         self.handWriteImgV.removeFromSuperview()
-        self.stickerImgV.removeFromSuperview()
-        self.textImgV.removeFromSuperview()
+        self.stickerBtn.removeFromSuperview()
+        self.textBtn.removeFromSuperview()
         self.closeImgV.removeFromSuperview()
-        self.saveMemoryV.removeFromSuperview()
-        self.uploadStoryV.removeFromSuperview()
+        self.saveMemoryBtn.removeFromSuperview()
+        self.uploadStoryBtn.removeFromSuperview()
+        self.sendPhotoBtn.removeFromSuperview()
         
     }
-    
     
     func imagePickerControllerDidCancel(picker: UIImagePickerController) {
         if picker.sourceType == .SavedPhotosAlbum{
