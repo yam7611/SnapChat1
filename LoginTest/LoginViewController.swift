@@ -66,7 +66,9 @@ class LoginViewController: UIViewController {
             } else {
                 self.spiner.stopAnimating()
                 self.spiner.hidden = false
+                
                 let friendList = friendListView()
+                //let NMVC = NewMemoryVC()
                 let naviationVC = UINavigationController(rootViewController: friendList)
                 self.presentViewController(naviationVC, animated: true, completion: nil)
             }

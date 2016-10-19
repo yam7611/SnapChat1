@@ -48,7 +48,7 @@ class MessageCell: UITableViewCell {
     
     var message: Message?{
         didSet{
-            
+            subtitleLabel.frame = CGRectMake(5,5,200,20)
             if message?.fromId == myAccount{
                 self.subtitleLabel.text = "Me:"
                 self.subtitleLabel.textColor = UIColor.redColor()

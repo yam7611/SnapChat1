@@ -17,14 +17,14 @@ class SendPhotoCell: UITableViewCell {
                 self.frame.size.height = 60
                 self.addSubview(titleLabel)
                 self.titleLabel.text = "My story"
-                clickBtn.centerYAnchor.constraintEqualToAnchor(self.centerYAnchor, constant: +10).active = true
+                //clickBtn.centerYAnchor.constraintEqualToAnchor(self.centerYAnchor, constant: 10).active = true
                 //self.titleLabel.hidden = false
             }
             else if currentIndex == 1 {
                 self.frame.size.height = 60
                 self.addSubview(titleLabel)
                 self.titleLabel.text = "My Friend"
-                clickBtn.centerYAnchor.constraintEqualToAnchor(self.centerYAnchor, constant: +10).active = true
+                //clickBtn.centerYAnchor.constraintEqualToAnchor(self.centerYAnchor, constant: 10).active = true
                 //self.titleLabel.hidden = false
             }else {
                 self.frame.size.height = 40

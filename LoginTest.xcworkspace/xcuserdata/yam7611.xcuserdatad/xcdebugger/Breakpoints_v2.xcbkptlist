@@ -2,4 +2,84 @@
 <Bucket
    type = "0"
    version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "LoginTest/SendPhotoCell.swift"
+            timestampString = "498520825.798184"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "70"
+            endingLineNumber = "70"
+            landmarkName = "titleLabel"
+            landmarkType = "19">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "LoginTest.SendPhotoCell.titleLabel.getter : __ObjC.UILabel"
+                  moduleName = "LoginTest"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/yam7611/Documents/Code/SnapChat/SnapChat1/LoginTest/SendPhotoCell.swift"
+                  timestampString = "498571180.315556"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "70"
+                  endingLineNumber = "70"
+                  offsetFromSymbolStart = "64">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "LoginTest.SendPhotoCell.init (style : __C.UITableViewCellStyle, reuseIdentifier : Swift.Optional&lt;Swift.String&gt;) -&gt; LoginTest.SendPhotoCell"
+                  moduleName = "LoginTest"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/yam7611/Documents/Code/SnapChat/SnapChat1/LoginTest/SendPhotoCell.swift"
+                  timestampString = "498571180.316113"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "70"
+                  endingLineNumber = "70"
+                  offsetFromSymbolStart = "288">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "LoginTest.SendPhotoCell.init (coder : __ObjC.NSCoder) -&gt; Swift.Optional&lt;LoginTest.SendPhotoCell&gt;"
+                  moduleName = "LoginTest"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/yam7611/Documents/Code/SnapChat/SnapChat1/LoginTest/SendPhotoCell.swift"
+                  timestampString = "498571180.316479"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "70"
+                  endingLineNumber = "70"
+                  offsetFromSymbolStart = "224">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "LoginTest.SendPhotoCell.(titleLabel : __ObjC.UILabel).(variable initialization expression).(closure #1)"
+                  moduleName = "LoginTest"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/yam7611/Documents/Code/SnapChat/SnapChat1/LoginTest/SendPhotoCell.swift"
+                  timestampString = "498571180.316895"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "72"
+                  endingLineNumber = "72"
+                  offsetFromSymbolStart = "12">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
 </Bucket>

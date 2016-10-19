@@ -21,8 +21,6 @@ class DrawView: UIView {
         tempBtn.layer.masksToBounds = true
         return tempBtn
     }()
-    let saveMemoryV:UIImageView = UIImageView()
-    let uploadStoryV:UIImageView = UIImageView()
     let rectangleImgV:UIImageView = UIImageView()
     let undoImgV:UIImageView = UIImageView()
     var tempLineRecorder:Int = 0
@@ -64,10 +62,7 @@ class DrawView: UIView {
                 }
                 print ("after remove,last line:\(pathRecording.last)")
                 print ("after deleting index 0 : \(lines.startIndex) , last index:\(lines.endIndex),the previousTempLine is:\(pathRecording.last)")
-            } else {
-                //tempLineRecorder += 1
-                print("gotoesle")
-            }
+            } 
         }
     }
     
@@ -79,13 +74,17 @@ class DrawView: UIView {
             
            let newPoint = touch.locationInView(imageView)
             //print("moved to x:\(newPoint.x),y:\(newPoint.y)")
+            
             if CGRectContainsPoint(imageView.frame, newPoint){
                 lines.append(Line(start:lastPoint, end:newPoint))
                 lastPoint = newPoint
                 tempLineRecorder += 1
                 //print("number in lines:\(lines.count), tempLine:\(tempLineRecorder)")
                 self.setNeedsDisplay()
-                hideAllButton()
+                NSNotificationCenter.defaultCenter().postNotificationName("isDrawingPost", object: nil, userInfo: ["isDrawing":true])
+                self.handWriteImgBtn.hidden = true
+                self.undoImgV.hidden =  true
+                self.rectangleImgV.hidden = true
             }
         }
     }
@@ -95,9 +94,13 @@ class DrawView: UIView {
         
         if let touch = touches.first{
             let point = touch.locationInView(imageView)
-            showAllButton()
+            NSNotificationCenter.defaultCenter().postNotificationName("isDrawingPost", object: nil, userInfo: ["isDrawing":false])
+            self.handWriteImgBtn.hidden = false
+            self.undoImgV.hidden =  false
+            self.rectangleImgV.hidden = false
+            
+            
             if CGRectContainsPoint(undoImgV.frame, point){
-                
                 if pathRecording == []{
                     self.undoImgV.hidden = true
                 }
@@ -105,7 +108,7 @@ class DrawView: UIView {
                 pathRecording.append(tempLineRecorder)
                 tempLineRecorder = 0
                 self.undoImgV.hidden = false
-            }
+            } 
         }
         
         //previousLineRecorder = 0
@@ -129,8 +132,7 @@ class DrawView: UIView {
         self.layer.addSublayer(layer)
         //MARK: setting each button image
        // let handWriteImg:UIImage = UIImage(named: "pencil.png")!
-        let saveToMemory:UIImage = UIImage(named:"download.png")!
-        let uploadToStory:UIImage = UIImage(named:"new-document.png")!
+        
         let rectangle:UIImage = UIImage(named:"rectangle.png")!
         let undo:UIImage = UIImage(named:"undo.png")!
         
@@ -139,8 +141,6 @@ class DrawView: UIView {
         handWriteImgBtn.setImage(UIImage(named:"pencil.png"), forState: .Normal)
         handWriteImgBtn.addTarget(self, action: #selector(handleLeaveWritingMode), forControlEvents: .TouchUpInside)
         
-        saveMemoryV.image = saveToMemory
-        uploadStoryV.image = uploadToStory
         rectangleImgV.image = rectangle
         undoImgV.image = undo
         undoImgV.backgroundColor = UIColor.redColor()
@@ -153,15 +153,11 @@ class DrawView: UIView {
         handWriteImgBtn.frame = CGRectMake(SCREEN_WIDTH - 38,7,25,25)
         rectangleImgV.frame = CGRectMake(SCREEN_WIDTH - 40,5,30,30)
         handWriteImgBtn.backgroundColor = UIColor.redColor()
-        saveMemoryV.frame = CGRectMake(40,SCREEN_HEIGHT - 40,30,30)
         undoImgV.frame = CGRectMake(rectangleImgV.frame.origin.x - 40,5,30,30)
-        uploadStoryV.frame = CGRectMake(saveMemoryV.frame.origin.x + 40,SCREEN_HEIGHT-40,30,30)
         
         //MARK: attach all buttons view on self.view
         self.addSubview(self.handWriteImgBtn)
         self.addSubview(self.rectangleImgV)
-        self.addSubview(self.saveMemoryV)
-        self.addSubview(self.uploadStoryV)
         self.addSubview(self.undoImgV)
         self.undoImgV.hidden = true
 
@@ -170,35 +166,13 @@ class DrawView: UIView {
     
     func handleLeaveWritingMode(){
         self.hidden = false
-        removeAllButtonViewsFromDrawView()
+        self.rectangleImgV.hidden = true
+        self.handWriteImgBtn.hidden = true
+        self.undoImgV.hidden = true
         NSNotificationCenter.defaultCenter().postNotificationName("leaveWritingMode", object: nil)
 
     }
-    
-    
-    func showAllButton(){
-        self.handWriteImgBtn.hidden = false
-        self.rectangleImgV.hidden = false
-        self.saveMemoryV.hidden = false
-        self.uploadStoryV.hidden = false
-        //self.undoImgV.hidden = false
-            }
-    func hideAllButton(){
-        self.handWriteImgBtn.hidden = true
-        self.rectangleImgV.hidden = true
-        self.saveMemoryV.hidden = true
-        self.uploadStoryV.hidden = true
-        self.undoImgV.hidden = true
-    }
-    func removeAllButtonViewsFromDrawView(){
-        self.handWriteImgBtn.removeFromSuperview()
-        self.rectangleImgV.removeFromSuperview()
-        self.saveMemoryV.removeFromSuperview()
-        self.uploadStoryV.removeFromSuperview()
-        self.undoImgV.removeFromSuperview()
-        
-    }
-    
+
     override func drawRect(rect: CGRect) {
         var context = UIGraphicsGetCurrentContext()
         CGContextBeginPath(context)

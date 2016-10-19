@@ -19,6 +19,7 @@ class Message: NSObject {
     var imageHeight:NSNumber?
     var imageWidth:NSNumber?
     var imageLifeTime:NSNumber?
+    var messageId:String?
     
     func chatPartnerId() -> String? {
         return fromId == FIRAuth.auth()?.currentUser?.uid ? toId :fromId
@@ -35,7 +36,6 @@ class Message: NSObject {
         self.imageWidth = dictionary["imageWidth"] as? NSNumber
         self.imageHeight = dictionary["imageHeight"] as? NSNumber
         self.imageLifeTime = dictionary["imageLifeTime"] as? NSNumber
-        
         
     }
     

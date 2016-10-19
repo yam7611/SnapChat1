@@ -14,7 +14,7 @@ import Firebase
 class MessageViewController: UIViewController,UITableViewDelegate,UITableViewDataSource,UITextFieldDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate{
     
     let containerView = UIView()
-    
+    var indexOfremovingPhoto = 0
     var keyboardHeight:CGFloat?
     let cellId = "CellId"
     let myAccount = FIRAuth.auth()!.currentUser!.uid
@@ -134,6 +134,7 @@ class MessageViewController: UIViewController,UITableViewDelegate,UITableViewDat
             if let cell = superView as? MessageCell{
                 if let index = cell.currentIndex{
                     print("index:\(index)")
+                    indexOfremovingPhoto = index
                     if let lt = messages[index].imageLifeTime{
                         lifeTime = Int(lt)
                     }
@@ -223,7 +224,41 @@ class MessageViewController: UIViewController,UITableViewDelegate,UITableViewDat
             self.counterForShowingImage?.text = "\(self.leftTime)"
         } else {
             self.timer.invalidate()
+            removePhotoFromServer()
         }
+    }
+    
+    func removePhotoFromServer(){
+        
+        //delete from messages node
+        if let removeValueKey = messages[indexOfremovingPhoto].messageId{
+            let ref = FIRDatabase.database().reference().child("messages").child("\(removeValueKey)")
+            ref.removeValue()
+        }
+        
+        //delete from sender message node
+        if let fromId = messages[indexOfremovingPhoto].fromId{
+            if let toId = messages[indexOfremovingPhoto].toId{
+                if let removeValueKey = messages[indexOfremovingPhoto].messageId{
+                let ref = FIRDatabase.database().reference().child("user-message").child("\(fromId)").child("\(toId)").child("\(removeValueKey)")
+                ref.removeValue()
+                }
+            }
+        }
+        
+        if let fromId = messages[indexOfremovingPhoto].fromId{
+            if let toId = messages[indexOfremovingPhoto].toId{
+                if let removeValueKey = messages[indexOfremovingPhoto].messageId{
+                    let ref = FIRDatabase.database().reference().child("user-message").child("\(toId)").child("\(fromId)").child("\(removeValueKey)")
+                    ref.removeValue()
+                }
+            }
+        }
+        self.messages.removeAtIndex(self.indexOfremovingPhoto)
+        
+        self.messageTableVIew.reloadData()
+        
+        //print("selectePhoto:\(indexOfremovingPhoto),messageId:\(messages[indexOfremovingPhoto].messageId)")
     }
     
     func handleBackToChatView(tapGesture:UITapGestureRecognizer){
@@ -388,8 +423,9 @@ class MessageViewController: UIViewController,UITableViewDelegate,UITableViewDat
                         return
                     }
     
-                    let message = Message(dictionary:dictionary) 
-                    
+                    let message = Message(dictionary:dictionary)
+                    message.messageId = snapshot.key
+                    print("msgId:\(message.messageId)")
                     if message.chatPartnerId() == self.user?.uid{
                          self.messages.append(message)
                     }

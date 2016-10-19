@@ -41,9 +41,6 @@ class User:NSObject{
             }
         }
         
-        for friend in friendDict{
-            print("\(self.name)'s friendList: \(friend.0),\(friend.1)")
-        }
     }
     
  

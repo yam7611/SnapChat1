@@ -7,7 +7,7 @@
 //
 
 import UIKit
-
+import Firebase
 class GettingStartViewController: UIViewController {
 
     @IBOutlet weak var hello: UILabel!
@@ -17,9 +17,9 @@ class GettingStartViewController: UIViewController {
         super.viewDidLoad()
         hello.text = "Welcome,\(userName)"
         // Do any additional setup after loading the view.
+        
+        
     }
-
- 
     
 
     /*

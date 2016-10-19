@@ -12,7 +12,7 @@ import Firebase
 class SignupViewController: UIViewController {
     
     var connection = false
-    
+    var keyboardFrame :CGRect?
     @IBOutlet weak var username: UITextField!
     
     @IBOutlet weak var name: UITextField!
@@ -24,12 +24,22 @@ class SignupViewController: UIViewController {
         
         super.viewDidLoad()
         
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(changeView(_:)), name: UIKeyboardWillShowNotification, object: nil)
+        
         //let ref = FIRDatabase.database().referenceFromURL("https://messagetest-4e61c.firebaseio.com/")
         //ref.updateChildValues(["someValues":123123])
         
         
         // Do any additional setup after loading the view, typically from a nib.
     }
+    func changeView(notification:NSNotification){
+        if let userInfo = notification.userInfo{
+            if let frame = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.CGRectValue(){
+                self.keyboardFrame = frame
+            }
+        }
+    }
+    
     @IBAction func backToFirstViewController(sender: UIButton) {
         self.dismissViewControllerAnimated(true, completion: nil)
     }
@@ -82,7 +92,19 @@ class SignupViewController: UIViewController {
         print("btn clicked!")
     }
     
-    
+    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+        if let touch = touches.first{
+            let point = touch.locationInView(self.view)
+            if let keybf = self.keyboardFrame{
+                if !CGRectContainsPoint(keybf, point){
+                    self.username.resignFirstResponder()
+                    self.password.resignFirstResponder()
+                    self.name.resignFirstResponder()
+                }
+            }
+            
+        }
+    }
     
     func postToServer(){
         //print("request is sent!")

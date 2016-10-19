@@ -26,13 +26,20 @@ class friendListView: UITableViewController {
         FIRDatabase.database().referenceFromURL("https://messagetest-4e61c.firebaseio.com/")
         checkIfUserIsLoggin()
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(named:"photo-camera (1)"),style:.Plain,target: self,action:#selector(handleCamera))
-        self.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "logout", style: .Plain, target: self, action: #selector(handleLogout))
+        self.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "stories", style: .Plain, target: self, action: #selector(handleLogout))
    
         fetchUser()
      
     }
     
     func handleLogout(){
+        
+        let storyView = storyViewController()
+        
+        let navigVC = UINavigationController(rootViewController: storyView)
+        
+        self.presentViewController(navigVC, animated: true, completion: nil)
+        
         
         print("you have log out,please sign out in FIREbase")
     }
